@@ -11,6 +11,10 @@ const {
   GraphQLString,
   GraphQLSchema,
   GraphQLList,
+  GrapgQLNonNull,
+  GraphQLNonNull,
+  GraohQLEnumType,
+  GraphQLEnumType,
 } = require("graphql");
 
 // Client type
@@ -54,7 +58,7 @@ const RootQuery = new GraphQLObjectType({
       type: ProjectType,
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
-        return Project.findById(args.id);
+        return Project.findById(args.id).populate("clientId");
       },
     },
     clients: {
@@ -73,6 +77,70 @@ const RootQuery = new GraphQLObjectType({
   },
 });
 
+// mutations
+const mutation = new GraphQLObjectType({
+  name: "Mutation",
+  fields: {
+    addClient: {
+      type: ClientType,
+      args: {
+        name: { type: new GraphQLNonNull(GraphQLString) },
+        email: { type: new GraphQLNonNull(GraphQLString) },
+        phone: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve: async (parent, args) => {
+        const client = await Client.create({
+          name: args.name,
+          email: args.email,
+          phone: args.phone,
+        });
+        return client;
+      },
+    },
+    // Delete clinet
+    deleteClient: {
+      type: ClientType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLID) },
+      },
+      resolve: async (parent, args) => {
+        const client = await Client.findByIdAndDelete(args.id);
+        return client;
+      },
+    },
+    //Add a project
+    addProject: {
+      type: ProjectType,
+      args: {
+        name: { type: new GraphQLNonNull(GraphQLString) },
+        description: { type: new GraphQLNonNull(GraphQLString) },
+        status: {
+          type: new GraphQLEnumType({
+            name: "ProjectStatus",
+            values: {
+              new: { value: "Not Started" },
+              progress: { value: "In Progress" },
+              complete: { value: "Complete" },
+            },
+          }),
+          defaultValue: "Not Started",
+        },
+        clientId: { type: new GraphQLNonNull(GraphQLID) },
+      },
+      resolve: async (parent, args) => {
+        const project = await Project.create({
+          name: args.name,
+          description: args.description,
+          status: args.status,
+          clientId: args.clientId,
+        });
+        return project;
+      },
+    },
+  },
+});
+
 module.exports = new GraphQLSchema({
   query: RootQuery,
+  mutation,
 });
