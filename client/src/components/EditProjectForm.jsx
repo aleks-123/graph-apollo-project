@@ -10,6 +10,8 @@ function EditProjectForm({ project }) {
     status: project.status,
   });
 
+  console.log(formData);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -72,6 +74,7 @@ function EditProjectForm({ project }) {
             value={formData.status}
             onChange={handleChange}
           >
+            <option value="">Select Status</option>
             <option value="new">Not Started</option>
             <option value="progress">In Progress</option>
             <option value="completed">Completed</option>
