@@ -10,7 +10,14 @@ function AddClientModal() {
     email: "",
     phone: "",
   });
-  const [isFormComplete, setIsFormComplete] = useState(false);
+
+  const isFormComplete = () => {
+    return (
+      formData.name.trim() !== "" &&
+      formData.email.trim() !== "" &&
+      formData.phone.trim() !== ""
+    );
+  };
 
   const [addClient] = useMutation(ADD_CLIENT, {
     variables: {
@@ -35,9 +42,6 @@ function AddClientModal() {
       ...formData,
       [name]: value,
     });
-
-    const isComplete = Object.values(formData).every((field) => field !== "");
-    setIsFormComplete(isComplete);
   };
 
   const onSubmit = (e) => {
@@ -127,7 +131,7 @@ function AddClientModal() {
                   type="submit"
                   data-bs-dismiss="modal"
                   className="btn btn-secondary m-2"
-                  disabled={!isFormComplete} // Disable the Submit button if the form is not complete
+                  disabled={!isFormComplete()} // Disable the Submit button if the form is not complete
                 >
                   Submit
                 </button>

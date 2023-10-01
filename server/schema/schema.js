@@ -39,7 +39,8 @@ const ProjectType = new GraphQLObjectType({
     client: {
       type: ClientType,
       resolve(parent, args) {
-        console.log(parent);
+        const clients = Client.findById(parent.clientId);
+        console.log(clients);
         return Client.findById(parent.clientId);
       },
     },
@@ -105,7 +106,12 @@ const mutation = new GraphQLObjectType({
         id: { type: new GraphQLNonNull(GraphQLID) },
       },
       resolve: async (parent, args) => {
+        await Project.deleteMany({ clientId: args.id });
         const client = await Client.findByIdAndDelete(args.id);
+
+        if (!client) {
+          return { success: false, message: "Client not found." };
+        }
         return client;
       },
     },
@@ -121,7 +127,7 @@ const mutation = new GraphQLObjectType({
             values: {
               new: { value: "Not Started" },
               progress: { value: "In Progress" },
-              complete: { value: "Complete" },
+              completed: { value: "Completed" },
             },
           }),
           defaultValue: "Not Started",
@@ -161,7 +167,7 @@ const mutation = new GraphQLObjectType({
             values: {
               new: { value: "Not Started" },
               progress: { value: "In Progress" },
-              complete: { value: "Complete" },
+              completed: { value: "Completed" },
             },
           }),
           defaultValue: "Not Started",

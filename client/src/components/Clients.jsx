@@ -6,10 +6,8 @@ import { GET_CLIENTS } from "../queries/clientQuery";
 function Clients() {
   const { loading, error, data } = useQuery(GET_CLIENTS);
 
-  if (loading) return <Spinner />;
+  if (loading) return null;
   if (error) return <p>Something went wrong!</p>;
-
-  console.log(data);
 
   return (
     <>
