@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Spinner from "../components/Spinner";
 import { useQuery } from "@apollo/client";
@@ -11,6 +12,15 @@ function Project() {
   const { loading, error, data } = useQuery(GET_PROJECT, {
     variables: { id },
   });
+
+  const [isEditing, setIsEditing] = useState(false);
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing);
+  };
+
+  const handleClose = () => {
+    setIsEditing(false);
+  };
 
   console.log(data);
   if (loading) return null;
@@ -28,7 +38,26 @@ function Project() {
           <h5 className="mt-3">Project status</h5>
           <p className="lead">{data.project.status}</p>
           <ClientInfo client={data.project.client} />
-          <EditProjectForm project={data.project} />
+          <div className="mt-5">
+            {isEditing ? (
+              <EditProjectForm project={data.project} />
+            ) : (
+              <>
+                <button className="btn btn-primary" onClick={handleEditToggle}>
+                  Edit
+                </button>
+              </>
+            )}
+
+            {isEditing && (
+              <button
+                className="btn btn-sm btn-secondary ms-2"
+                onClick={handleClose}
+              >
+                Close
+              </button>
+            )}
+          </div>
           <DeleteProjectButton projectId={data.project.id} />
         </div>
       )}
